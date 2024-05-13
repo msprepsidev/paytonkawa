@@ -2,12 +2,12 @@ import express from 'express';
 import mongoose from 'mongoose'
 import bodyParser from 'body-parser';
 import axios from 'axios';
-import { Product } from './model/Product.js';
+import { Order } from './model/Order.js';
 
 const app = express();
 const port = 5002;
 
-const url = 'mongodb+srv://papa:passer123@cluster0.1qaei.mongodb.net/products?retryWrites=true&w=majority&appName=Cluster0';
+const url = 'mongodb+srv://papa:passer123@cluster0.1qaei.mongodb.net/orders?retryWrites=true&w=majority&appName=Cluster0';
 
 let authToken = null;
 
@@ -65,15 +65,15 @@ app.get('/authenticate', addTokenToResponse, (req, res) => {
 
 /* ===================================== Routes avec les autorisations d'accès ===================================*/
 
-//Route pour récupérer les produits.
+//Route pour récupérer les commandes.
 app.get('/orders', checkAuthToken, async (req, res) => {
     const userRole = req.user.role;
     if (userRole === 'developer' || userRole === 'commercial' || userRole === 'marketing' || userRole === 'management') {
         try {
-            const products = await Product.find();
-            res.json(products);
+            const orders = await Order.find();
+            res.json(orders);
         } catch (error) {
-            res.status(500).json({ message: 'Erreur lors de la récupération des produits depuis la base de données.' });
+            res.status(500).json({ message: 'Erreur lors de la récupération des commandes depuis la base de données.' });
         }
     } else {
         res.status(403).json({ message: 'Accès non autorisé. Rôle non autorisé.' });
@@ -81,17 +81,17 @@ app.get('/orders', checkAuthToken, async (req, res) => {
 });
 
 // Route pour récupérer les informations d'un produit spécifique
-app.get('/products/:id', checkAuthToken, async (req, res) => {
+app.get('/orders/:id', checkAuthToken, async (req, res) => {
     const userRole = req.user.role;
     if (userRole === 'developer' || userRole === 'marketing' || userRole === 'commercial' || userRole === 'management') {
         try {
-            const product = await Product.findOne({ id: req.params.id });
-            if (!product) {
-                return res.status(404).json({ message: 'Produit non trouvé.' });
+            const order = await Order.findOne({ id: req.params.id });
+            if (!orders) {
+                return res.status(404).json({ message: 'Commande non trouvé.' });
             }
-            res.json(product);
+            res.json(order);
         } catch (error) {
-            res.status(500).json({ message: 'Erreur lors de la récupération des informations du produit.' });
+            res.status(500).json({ message: 'Erreur lors de la récupération des informations de la commande.' });
         }
     } else {
         res.status(403).json({ message: 'Accès non autorisé. Rôle non autorisé.' });
@@ -99,18 +99,18 @@ app.get('/products/:id', checkAuthToken, async (req, res) => {
 });
 
 // Route pour mettre à jour les informations d'un produit spécifique
-app.put('/products/:id', checkAuthToken, async (req, res) => {
+app.put('/order/:id', checkAuthToken, async (req, res) => {
     const userRole = req.user.role;
     if (userRole === 'developer' || userRole === 'marketing' || userRole === 'commercial' || userRole === 'management') {
         try {
-            const updatedProductData = req.body;
-            const updatedProduct = await Product.findOneAndUpdate({ id: req.params.id }, updatedProductData, { new: true });
-            if (!updatedProduct) {
-                return res.status(404).json({ message: 'Produit non trouvé.' });
+            const updatedOrderData = req.body;
+            const updatedOrder = await Order.findOneAndUpdate({ id: req.params.id }, updatedOrderData, { new: true });
+            if (!updatedOrder) {
+                return res.status(404).json({ message: 'Commande non trouvé.' });
             }
-            res.json(updatedProduct);
+            res.json(updatedOrder);
         } catch (error) {
-            res.status(500).json({ message: 'Erreur lors de la mise à jour des informations du produit.' });
+            res.status(500).json({ message: 'Erreur lors de la mise à jour des informations de la commande.' });
         }
     } else {
         res.status(403).json({ message: 'Accès non autorisé. Rôle non autorisé.' });
@@ -118,37 +118,37 @@ app.put('/products/:id', checkAuthToken, async (req, res) => {
 });
 
 // Route pour créer un nouveau produit
-app.post('/products', checkAuthToken, async (req, res) => {
+app.post('/orders', checkAuthToken, async (req, res) => {
     const userRole = req.user.role;
     if (userRole === 'marketing') {
         try {
-            const newProductData = req.body;
-            const newProduct = new Product(newProductData);
-            await newProduct.save();
-            res.status(201).json(newProduct);
+            const newOrderData = req.body;
+            const newOrder = new Product(newOrderData);
+            await newOrder.save();
+            res.status(201).json(newOrder);
         } catch (error) {
-            res.status(500).json({ message: 'Erreur lors de la création du nouveau produit.' });
+            res.status(500).json({ message: 'Erreur lors de la création de la nouvelle commande.' });
         }
     } else {
-        res.status(403).json({ message: 'Accès non autorisé. Seuls les membres du service marketing sont autorisés à créer un nouveau produit.' });
+        res.status(403).json({ message: 'Accès non autorisé. Seuls les membres du service marketing sont autorisés à créer de nouvelles commandes.' });
     }
 });
 
 // Route pour supprimer un produit existant
-app.delete('/products/:id', checkAuthToken, async (req, res) => {
+app.delete('/orders/:id', checkAuthToken, async (req, res) => {
     const userRole = req.user.role;
     if (userRole === 'marketing') {
         try {
-            const deletedProduct = await Product.findOneAndDelete({ id: req.params.id });
-            if (!deletedProduct) {
-                return res.status(404).json({ message: 'Produit non trouvé.' });
+            const deletedOrder = await Order.findOneAndDelete({ id: req.params.id });
+            if (!deletedOrder) {
+                return res.status(404).json({ message: 'Commande non trouvée.' });
             }
-            res.json({ message: 'Produit supprimé avec succès.' });
+            res.json({ message: 'Commande supprimée avec succès.' });
         } catch (error) {
-            res.status(500).json({ message: 'Erreur lors de la suppression du produit.' });
+            res.status(500).json({ message: 'Erreur lors de la suppression de la commande.' });
         }
     } else {
-        res.status(403).json({ message: 'Accès non autorisé. Seuls les membres du service marketing sont autorisés à supprimer un produit.' });
+        res.status(403).json({ message: 'Accès non autorisé. Seuls les membres du service marketing sont autorisés à supprimer des commandes.' });
     }
 });
 
