@@ -1,48 +1,71 @@
-// import express from 'express';
-// import mongoose from 'mongoose'
+const express = require('express')
+const mongoose = require('mongoose')
 // import bodyParser from 'body-parser';
 // import axios from 'axios';
-// import {Customer} from './models/Customer.js'
-// import {router} from './routers/customerRoutes.js';
-// const app = express();
-// const port = 5000;
 
-import express from 'express';
+const customerRoutes = require( './routers/customerRoutes.js');
+const CustomerController = require ('./controllers/customerController.js')
+const Customer = require ('./models/Customer.js')
+
 const app = express();
-import {customerRouter} from './routers/customerRoutes.js';
-// const customerRouter = require('./routers/customerRoutes');
 
-// Utilisez le router pour gérer les routes liées aux clients
-app.use('/api', customerRouter);
+const url = 'mongodb+srv://papa:passer123@cluster0.1qaei.mongodb.net/customers?retryWrites=true&w=majority&appName=Cluster0';
+function connect(){
+  try{
+      mongoose.connect(url, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true
+      });
+      console.log('Connected to the database');
+  }
+  catch(err){
+      console.log(err);
+  }
+}
+connect();
 
-// D'autres configurations de l'application...
+// app.get('/customers', async (req, res) => {
+//   try {
+//       const customers = await Customer.find();
+//       res.json(customers);
+//   } catch (error) {
+//       res.status(500).json({ message: 'Erreur lors de la récupération des clients depuis la base de données.' });
+//   }
+// });
+// app.post('/customers', CustomerController.createCustomer())
 
-// Démarrer le serveur
+const customers = [
+  {
+            name: 'John',
+            lastname: 'DOE',
+            email: 'john@example.com',
+            phone: '1234567890',
+            adress: {
+                postalCode: 1234,
+                city: 'New York',
+                street: '5th Avenue',
+              },
+            company: true,
+        }
+]; 
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
 });
 
-const url = 'mongodb+srv://papa:passer123@cluster0.1qaei.mongodb.net/customers?retryWrites=true&w=majority&appName=Cluster0';
-const mockApiUrl = 'https://6606d9f9be53febb857ec4eb.mockapi.io/api/v1/customers';
+app.get('/customers', CustomerController.getAllCustomers);
+app.post('/customers', CustomerController.createCustomer)
 
-let authToken = null;
+module.exports = app;
+
+
+// const mockApiUrl = 'https://6606d9f9be53febb857ec4eb.mockapi.io/api/v1/customers';
+
+// let authToken = null;
 
 // Parser le corps des requêtes au format JSON
 // app.use(bodyParser.json());
 
-// function connect(){
-//     try{
-//         mongoose.connect(url, {
-//             useNewUrlParser: true,
-//             useUnifiedTopology: true
-//         });
-//         console.log('Connected to the database');
-//     }
-//     catch(err){
-//         console.log(err);
-//     }
-// }
-// connect();
+
 
 // // Fonction pour récupérer et enregistrer les produits dans la base de données
 // async function fetchAndSave() {

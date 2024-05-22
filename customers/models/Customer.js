@@ -1,49 +1,38 @@
-import mongoose from 'mongoose' 
+const mongoose = require('mongoose') 
 
 const customerSchema = new mongoose.Schema({
-createdAt: {
-    type: Date,
-},
-name: {
-    type: String,
-    
-},
-username: {
-    type: String,
-    
-},
-firstName: {
-    type: String,
-    
-},
-lastName: {
-    type: String,
-},
-address: {
-    postalCode: {
-    type: String,
+
+    name: {
+        type: String,  
+        required: true
     },
-    city: {
-    type: String,
-    }
-},
-profile: {
-    firstName: {
-    type: String,
+    lastname: {
+        type: String,
+        required: true
     },
-    lastName: {
-    type: String,
-    }
-},
-company: {
-    companyName: {
-    type: String,
-    }
-},
-id: {
-    type: Number
-}
+    email: {
+        type: String,
+        required: true,
+    },
+    phone:{
+        type: Number,
+    },
+    address: {
+        postalCode: {
+        type: Number,
+        },
+        city: {
+            type: String,
+        },
+        street: {
+            type: String,
+        },
+    },
+    company: {
+        type: Boolean,
+        required: true
+    },
 });
 
-// Création du modèle Customer à partir du schéma
-export const Customer = mongoose.model('Customer', customerSchema);
+const Customer = mongoose.model('Customer', customerSchema);
+module.exports = Customer;
